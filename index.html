@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LibAuto Online | Cloud System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Courier+Prime&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div id="toast-container"></div>
+
+    <div class="sidebar no-print">
+        <div class="logo">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <h2>LibAuto <small style="font-size: 10px;">ONLINE</small></h2>
+        </div>
+        <nav>
+            <button class="nav-btn active" onclick="Router.navigate('dashboard')">
+                <i class="fas fa-chart-pie"></i> <span>Dashboard</span>
+            </button>
+            <button class="nav-btn" onclick="Router.navigate('alunos')">
+                <i class="fas fa-user-graduate"></i> <span>Alunos</span>
+            </button>
+            <button class="nav-btn" onclick="Router.navigate('acervo')">
+                <i class="fas fa-swatchbook"></i> <span>Acervo</span>
+            </button>
+            <button class="nav-btn" onclick="Router.navigate('emprestimos')">
+                <i class="fas fa-exchange-alt"></i> <span>Empréstimos</span>
+            </button>
+            <button class="nav-btn" onclick="Router.navigate('relatorios')">
+                <i class="fas fa-file-invoice"></i> <span>Relatórios</span>
+            </button>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        
+        <section id="dashboard" class="section active-section">
+            <header>
+                <h1>Dashboard</h1>
+                <p>Status da Biblioteca (Nuvem)</p>
+            </header>
+            <div class="dashboard-grid">
+                <div class="kpi-card glass">
+                    <div class="icon-box bg-blue"><i class="fas fa-book"></i></div>
+                    <div><h3>Acervo</h3><span id="kpi-total-books">...</span></div>
+                </div>
+                <div class="kpi-card glass">
+                    <div class="icon-box bg-purple"><i class="fas fa-users"></i></div>
+                    <div><h3>Alunos</h3><span id="kpi-total-students">...</span></div>
+                </div>
+                <div class="kpi-card glass">
+                    <div class="icon-box bg-orange"><i class="fas fa-hand-holding-heart"></i></div>
+                    <div><h3>Emprestados</h3><span id="kpi-borrowed">...</span></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="alunos" class="section">
+            <header><h1>Gestão de Alunos</h1></header>
+            <div class="card glass no-print">
+                <h3><i class="fas fa-user-plus"></i> Novo Aluno</h3>
+                <form id="student-form">
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label>Nome Completo</label>
+                            <input type="text" id="student-name" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Curso</label>
+                            <input type="text" id="student-course" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Turma</label>
+                            <input type="text" id="student-class" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary ripple">Cadastrar na Nuvem</button>
+                </form>
+            </div>
+            <div class="table-wrapper glass">
+                <table class="table">
+                    <thead><tr><th>RA</th><th>Nome</th><th>Curso/Turma</th><th class="no-print">Ações</th></tr></thead>
+                    <tbody id="student-list"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="acervo" class="section">
+            <header><h1>Acervo Bibliográfico</h1></header>
+            <div class="card glass no-print">
+                <h3><i class="fas fa-book-medical"></i> Novo Livro</h3>
+                <form id="book-form">
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label>Título da Obra</label>
+                            <input type="text" id="book-title" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Autor(es)</label>
+                            <input type="text" id="book-author" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary ripple">Cadastrar e Gerar Etiqueta</button>
+                </form>
+            </div>
+            <div class="search-bar glass no-print">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-books-input" placeholder="Filtrar livros carregados..." onkeyup="UI.filterBooksLocal(this.value)">
+            </div>
+            <div class="table-wrapper glass">
+                <table class="table">
+                    <thead><tr><th>ID</th><th>Título</th><th>Autor</th><th>Status</th><th class="no-print">Ações</th></tr></thead>
+                    <tbody id="book-list"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="emprestimos" class="section">
+            <header><h1>Controle de Saída</h1></header>
+            <div class="card glass no-print">
+                <form id="loan-form">
+                    <div class="form-grid">
+                        <div class="search-input-container">
+                            <label>Livro</label>
+                            <div class="input-wrapper">
+                                <input type="text" id="loan-book-display" placeholder="Clique na lupa..." readonly onclick="Modal.open('book')">
+                                <button type="button" class="btn-icon" onclick="Modal.open('book')"><i class="fas fa-search"></i></button>
+                                <input type="hidden" id="loan-book-id-hidden">
+                            </div>
+                        </div>
+                        <div class="search-input-container">
+                            <label>Aluno</label>
+                            <div class="input-wrapper">
+                                <input type="text" id="loan-student-display" placeholder="Clique na lupa..." readonly onclick="Modal.open('student')">
+                                <button type="button" class="btn-icon" onclick="Modal.open('student')"><i class="fas fa-search"></i></button>
+                                <input type="hidden" id="loan-student-ra-hidden">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-warning ripple" style="width:100%; margin-top:20px;">
+                        <i class="fas fa-print"></i> Confirmar e Imprimir
+                    </button>
+                </form>
+            </div>
+
+            <div class="table-wrapper glass">
+                <table class="table">
+                    <thead><tr><th>Livro</th><th>Aluno</th><th>Devolução Prevista</th><th class="no-print">Ação</th></tr></thead>
+                    <tbody id="active-loan-list"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="relatorios" class="section">
+            <header class="report-header">
+                <h1>Relatório Geral</h1>
+                <button onclick="window.print()" class="btn btn-secondary no-print"><i class="fas fa-print"></i> Imprimir Relatório</button>
+            </header>
+            <div class="card glass no-print">
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label>Filtrar Relatório</label>
+                        <input type="text" id="report-search" placeholder="Nome, Livro..." onkeyup="UI.displayReports()">
+                    </div>
+                </div>
+            </div>
+            <div class="table-wrapper glass">
+                <table class="table report-table">
+                    <thead><tr><th>Data Saída</th><th>Livro</th><th>Aluno</th><th>Curso</th><th>Status</th></tr></thead>
+                    <tbody id="report-list"></tbody>
+                </table>
+            </div>
+        </section>
+
+    </div>
+
+    <div id="universal-modal" class="modal-overlay">
+        <div class="modal-content glass-modal">
+            <div class="modal-header">
+                <h2 id="modal-title">Buscar</h2>
+                <button class="close-modal" onclick="Modal.close()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="modal-search-input" placeholder="Digite para buscar..." autocomplete="off">
+                <ul id="modal-results-list" class="results-list"></ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="print-overlay"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js"></script>
+</body>
+</html>
