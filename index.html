@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LibAuto Online | Cloud System</title>
+    <title>LibAuto 2.0 | Conectado ao Firebase</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Courier+Prime&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -14,8 +14,8 @@
 
     <div class="sidebar no-print">
         <div class="logo">
-            <i class="fas fa-cloud-upload-alt"></i>
-            <h2>LibAuto <small style="font-size: 10px;">ONLINE</small></h2>
+            <i class="fas fa-book-reader"></i>
+            <h2>LibAuto</h2>
         </div>
         <nav>
             <button class="nav-btn active" onclick="Router.navigate('dashboard')">
@@ -33,6 +33,9 @@
             <button class="nav-btn" onclick="Router.navigate('relatorios')">
                 <i class="fas fa-file-invoice"></i> <span>Relatórios</span>
             </button>
+            <button class="nav-btn danger-hover" onclick="Router.navigate('config')">
+                <i class="fas fa-sliders-h"></i> <span>Config</span>
+            </button>
         </nav>
     </div>
 
@@ -41,16 +44,16 @@
         <section id="dashboard" class="section active-section">
             <header>
                 <h1>Dashboard</h1>
-                <p>Status da Biblioteca (Nuvem)</p>
+                <p>Visão geral em tempo real (Conectado à Nuvem)</p>
             </header>
             <div class="dashboard-grid">
                 <div class="kpi-card glass">
                     <div class="icon-box bg-blue"><i class="fas fa-book"></i></div>
-                    <div><h3>Acervo</h3><span id="kpi-total-books">...</span></div>
+                    <div><h3>Acervo Total</h3><span id="kpi-total-books">...</span></div>
                 </div>
                 <div class="kpi-card glass">
                     <div class="icon-box bg-purple"><i class="fas fa-users"></i></div>
-                    <div><h3>Alunos</h3><span id="kpi-total-students">...</span></div>
+                    <div><h3>Alunos Ativos</h3><span id="kpi-total-students">...</span></div>
                 </div>
                 <div class="kpi-card glass">
                     <div class="icon-box bg-orange"><i class="fas fa-hand-holding-heart"></i></div>
@@ -78,7 +81,8 @@
                             <input type="text" id="student-class" required>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary ripple">Cadastrar na Nuvem</button>
+                    <div class="info-tag"><i class="fas fa-robot"></i> RA gerado automaticamente.</div>
+                    <button type="submit" class="btn btn-primary ripple">Cadastrar Aluno</button>
                 </form>
             </div>
             <div class="table-wrapper glass">
@@ -104,12 +108,13 @@
                             <input type="text" id="book-author" required>
                         </div>
                     </div>
+                    <div class="info-tag"><i class="fas fa-tag"></i> Gera etiqueta com QR Code automaticamente.</div>
                     <button type="submit" class="btn btn-primary ripple">Cadastrar e Gerar Etiqueta</button>
                 </form>
             </div>
             <div class="search-bar glass no-print">
                 <i class="fas fa-search"></i>
-                <input type="text" id="search-books-input" placeholder="Filtrar livros carregados..." onkeyup="UI.filterBooksLocal(this.value)">
+                <input type="text" placeholder="Buscar livro por Título ou ID..." onkeyup="UI.filterBooks(this.value)">
             </div>
             <div class="table-wrapper glass">
                 <table class="table">
@@ -142,7 +147,7 @@
                         </div>
                     </div>
                     <button type="submit" class="btn btn-warning ripple" style="width:100%; margin-top:20px;">
-                        <i class="fas fa-print"></i> Confirmar e Imprimir
+                        <i class="fas fa-print"></i> Confirmar e Imprimir Recibo
                     </button>
                 </form>
             </div>
@@ -163,19 +168,38 @@
             <div class="card glass no-print">
                 <div class="form-grid">
                     <div class="input-group">
-                        <label>Filtrar Relatório</label>
-                        <input type="text" id="report-search" placeholder="Nome, Livro..." onkeyup="UI.displayReports()">
+                        <label>Filtrar</label>
+                        <input type="text" id="report-search" placeholder="Nome, Livro, RA..." onkeyup="UI.displayReports()">
+                    </div>
+                    <div class="input-group">
+                        <label>Status</label>
+                        <select id="report-filter" onchange="UI.displayReports()">
+                            <option value="all">Todos</option>
+                            <option value="active">Pendentes</option>
+                            <option value="returned">Devolvidos</option>
+                        </select>
                     </div>
                 </div>
             </div>
             <div class="table-wrapper glass">
                 <table class="table report-table">
-                    <thead><tr><th>Data Saída</th><th>Livro</th><th>Aluno</th><th>Curso</th><th>Status</th></tr></thead>
+                    <thead><tr><th>Data Saída</th><th>Livro</th><th>Aluno</th><th>Curso/Turma</th><th>Status</th></tr></thead>
                     <tbody id="report-list"></tbody>
                 </table>
             </div>
         </section>
 
+        <section id="config" class="section">
+            <header><h1>Configurações</h1></header>
+            <div class="card glass">
+                <h3>Sistema na Nuvem</h3>
+                <p>Seus dados estão sendo salvos no Google Firebase (Projeto: labbibli).</p>
+                <br>
+                <div class="alert" style="color: var(--text-muted);">
+                    Não é possível resetar o banco de dados por aqui por segurança. Acesse o console do Firebase para limpar coleções.
+                </div>
+            </div>
+        </section>
     </div>
 
     <div id="universal-modal" class="modal-overlay">
@@ -193,7 +217,6 @@
 
     <div id="print-overlay"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>
